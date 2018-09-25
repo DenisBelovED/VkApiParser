@@ -22,6 +22,16 @@ def friends_get():
     return r'friends.get'
 
 
+@use_method
+def docs_get():
+    return 'docs.get'
+
+
+@use_method
+def docs_search():
+    return 'docs.search'
+
+
 def get_command():
     print("Введите запрос")
     return input().split(' ')
@@ -30,7 +40,9 @@ def get_command():
 def help_list():
     print('exit')
     print('get_user_info <arg>')
-    print('friend_list <int arg>')
+    print('friend_list <arg>')
+    print('get_docs <arg>')
+    print('search_doc <arg> <count>')
 
 
 def get_user_info(fields):
@@ -51,7 +63,26 @@ def friend_list(fields, access_token, version):
     for people in response_id['response']:
         for f in people.items():
             print(f[0], ':', f[1])
-        print('\n')
+        print()
+
+
+def get_docs(fields):
+    response = users_get(fields.get_package()).json()
+    fields.add_fields({'owner_id': str(response['response'][0]['id']), 'count': '2000'})
+    response = docs_get(fields.get_package()).json()
+    print('найдено документов:', str(response['response']['count']))
+    for doc in response['response']['items']:
+        for f in doc.items():
+            print(f[0], ':', f[1])
+        print()
+
+
+def search_doc(fields):
+    response = docs_search(fields.get_package()).json()
+    for doc in response['response']['items']:
+        for f in doc.items():
+            print(f[0], ':', f[1])
+        print()
 
 
 def work_loop(access_token, version='5.85'):
@@ -72,6 +103,15 @@ def work_loop(access_token, version='5.85'):
             if command[0] == 'friend_list':
                 fields.add_fields({'user_ids': str(command[1])})
                 friend_list(fields, access_token, version)
+                continue
+            if command[0] == 'get_docs':
+                fields.add_fields({'user_ids': str(command[1])})
+                get_docs(fields)
+                continue
+        if len(command) == 3:
+            if command[0] == 'search_doc':
+                fields.add_fields({'q': str(command[1]), 'search_own': '0', 'count': str(command[2])})
+                search_doc(fields)
                 continue
 
 

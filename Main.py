@@ -70,11 +70,14 @@ def get_docs(fields):
     response = users_get(fields.get_package()).json()
     fields.add_fields({'owner_id': str(response['response'][0]['id']), 'count': '2000'})
     response = docs_get(fields.get_package()).json()
-    print('найдено документов:', str(response['response']['count']))
-    for doc in response['response']['items']:
-        for f in doc.items():
-            print(f[0], ':', f[1])
-        print()
+    try:
+        print('найдено документов:', str(response['response']['count']))
+        for doc in response['response']['items']:
+            for f in doc.items():
+                print(f[0], ':', f[1])
+            print()
+    except:
+        print('ошибка', str(response['error']))
 
 
 def search_doc(fields):
